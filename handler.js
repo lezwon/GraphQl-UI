@@ -4,7 +4,11 @@ const fs = require('fs')
 const {introspectionQuery, graphqlRequest} = require('./gql-interface')
 
 module.exports.index = (event, context, callback) => {
-  html = fs.readFileSync('index.html', 'utf8')
+  let html = fs.readFileSync('index.html', 'utf8')
+  let index = fs.readFileSync('index.js', 'utf8')
+  let renderHelpers = fs.readFileSync('renderHelpers.js', 'utf8')
+  html = html.replace("{{ index.js }}", index)
+  html = html.replace("{{ renderHelpers.js }}", renderHelpers);
   const response = {
     statusCode: 200,
     headers: {

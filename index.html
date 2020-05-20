@@ -8,8 +8,8 @@
     <script src="//cdn.jsdelivr.net/npm/graphql.js@0.6.6/graphql.min.js"></script>
     <script src="https://unpkg.com/prettier@2.0.5/standalone.js"></script>
     <script src="https://unpkg.com/prettier@2.0.5/parser-graphql.js"></script>
-    <script src="index.js"></script>
-    <script src="renderHelpers.js"></script>
+    <script>{{ index.js }}</script>
+    <script>{{ renderHelpers.js }}</script>
 </head>
 
 <body>
@@ -35,9 +35,8 @@
         
         submit_button.setAttribute('disabled', true)
 
-        getClient(endpoint, {
-        "Authorization": `${tokenType} ${token}`,
-        }).then((client) => {
+        getClient(endpoint,`${tokenType} ${token}`)
+        .then((client) => {
             submit_button.removeAttribute('disabled')
             let container = document.getElementById('container')
             if(container != null){ container.remove() }
@@ -105,7 +104,8 @@
                     subContainer.appendChild(preTag)
                     preTag.innerHTML = JSON.stringify(body, undefined, 4).replace(/\n/g, "<br />")
 
-                    client.execute(query, outputPayload).then((response) => {
+                    client.execute(outputPayload).then(async (response) => {
+                        response = await response.json();
                         responseTag = document.createElement('pre')
                         subContainer.appendChild(responseTag)
                         responseTag.innerHTML = JSON.stringify(response, undefined, 4)
