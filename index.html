@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GraphQl Interface</title>
+    <script src="//cdn.jsdelivr.net/npm/graphql.js@0.6.6/graphql.min.js"></script>
+    <script src="https://unpkg.com/prettier@2.0.5/standalone.js"></script>
+    <script src="https://unpkg.com/prettier@2.0.5/parser-graphql.js"></script>
+    <script src="index.js"></script>
+    <script src="renderHelpers.js"></script>
+</head>
+
+<body>
+    <form action="#" name="config">
+        <input id="endpoint" type="text" name="endpoint" id="" placeholder="Endpoint" value="http://dev5-2.stg.synup.com/graphql">
+        <select name="token_type" id="">
+            <option value="Bearer">Bearer</option>
+            <option value="Internal">Internal</option>
+            <option value="API">API</option>
+        </select>
+        <input id="token" type="text" name="token" id="" placeholder="Token" value="eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJ1c2VyX2lkIjoxNjU1LCJhY2NvdW50X2lkIjoxMTI1OSwicm9sZV9pZCI6MjA2ODcsIm5hbWUiOiJKYXkiLCJ1c2VyX3R5cGUiOiJTTUIiLCJqdGkiOiI2NmI0MDZmNC02NTQ4LTQwMzEtOTNmMS0xOTA0MmI5NTVmZDYiLCJyb2xlX3R5cGUiOiJhZG1pbiIsInJvbGVfbmFtZSI6IkFkbWluIn0.ZJ4DWcJU9j0GP1kMHFRDhCa1E5GearvfkoGz-vBoYlIAKoLaMXnImPGFzbTguVduDF_cDC6jcaglathJyvvAdpqBykYnS3ejjPKnkleJ2uYoKJc3vuF7AtMjVo83QpIKdIo6HFfrIrkJn0MrSdqjbnwSgD6HTdjKtqySfZZ-_JAnwaYJO4n0SVsmOWrZEyHg-Xg7c_pdQCT3GpXEczkU1JUL32bFJ2KIf83yMPyJvz4VaIdxqhW-vGdb8EJsrmbW5C_rOL5amdhKcAt549d0EiDBYsUgLxfHhkHDkKxtbxY08oDEc8vYE0fcUld_DWim3OAaqM_h4sHCDrdbbyheoA">
+        <input id="submit_button" type="submit" value="Submit" name="submit_button">
+    </form>
+</body>
+<script>
+
+    document.forms.config.addEventListener('submit', (e) => {
+        e.preventDefault()
+        let submit_button = e.target.submit_button
+        let endpoint = e.target.endpoint.value
+        let tokenType = e.target.token_type.value
+        let token = e.target.token.value
+        
+        submit_button.setAttribute('disabled', true)
+
+        getClient(endpoint, {
+        "Authorization": `${tokenType} ${token}`,
+        }).then((client) => {
+            submit_button.removeAttribute('disabled')
+            let container = document.getElementById('container')
+            if(container != null){ container.remove() }
+
+            container = document.createElement('div')
+            container.id = 'container'
+            document.body.appendChild(container)
+            
+            let queryList = client.getFullList().sort()
+            
+            let querySelectElement = document.createElement('select')
+            queryList.forEach((query) => {
+                let option = document.createElement('option')
+                option.setAttribute('value', query)
+                option.innerText = query
+                querySelectElement.appendChild(option)
+            })
+            container.appendChild(querySelectElement)
+            
+            querySelectElement.addEventListener('change', function(e){
+                query = e.target.value
+                
+                let subContainer = document.getElementById('subContainer')
+                if(subContainer != null){ subContainer.remove() }
+
+                subContainer = document.createElement('div')
+                subContainer.id = 'subContainer'
+                container.appendChild(subContainer)
+               
+
+                let payload = client.resolveQueryInput(query)
+                let output = parseObject(payload)
+                htmlRender = renderItems(output)
+                subContainer.appendChild(htmlRender)
+
+                button = document.createElement('button')
+                button.setAttribute('value', 'Submit')
+                button.innerText = 'Submit'
+                subContainer.appendChild(button)
+
+
+                button.addEventListener('click', function(e){
+                    let variables = parseInput(output)
+                    let outputPayload = client.getOutputQuery(query)
+                    if(Object.keys(variables).length != 0){
+                        
+                        let params = Object.entries(variables).map(([key, value])=>{
+                            return `${key}: ${JSON.stringify(value)}`
+                        }).join(", ")
+                        params = `(${params})`
+
+
+                        let idx = outputPayload.indexOf('{')
+                        idx = outputPayload.indexOf('{', idx + 1)
+                        outputPayload = outputPayload.slice(0, --idx) + params + outputPayload.slice(idx)
+                    }
+                    
+
+                    body = {
+                        'query': outputPayload,
+                        'variables': variables
+                    }
+
+                    preTag = document.createElement('pre')
+                    subContainer.appendChild(preTag)
+                    preTag.innerHTML = JSON.stringify(body, undefined, 4).replace(/\n/g, "<br />")
+
+                    client.execute(query, outputPayload).then((response) => {
+                        responseTag = document.createElement('pre')
+                        subContainer.appendChild(responseTag)
+                        responseTag.innerHTML = JSON.stringify(response, undefined, 4)
+                    }).catch(e=> console.log(e))
+                })
+            })
+        })
+    })
+
+    
+</script>
+
+</html>

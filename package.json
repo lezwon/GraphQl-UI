@@ -1,0 +1,17 @@
+{
+  "name": "gql-forms",
+  "version": "1.0.0",
+  "description": "A front end interface to enter GQL arguements",
+  "main": "gqlInterface.js",
+  "scripts": {
+    "start": "serverless offline -s dev",
+    "debug": "serverless offline -s dev",
+    "test": "mocha"
+  },
+  "author": "Lezwon Castelino",
+  "license": "ISC",
+  "devDependencies": {
+    "graphql-request": "^1.8.2",
+    "serverless-offline": "^6.1.5"
+  }
+}

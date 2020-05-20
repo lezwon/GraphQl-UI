@@ -1,0 +1,33 @@
+service: gql-forms
+
+frameworkVersion: ">=1.1.0 <2.0.0"
+
+plugins:
+  - serverless-offline
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+
+functions:
+  index:
+    handler: handler.index
+    events:
+      - http:
+          path: /
+          method: get
+
+  schema:
+    handler: handler.introspectionQuery
+    events:
+      - http:
+          path: /schema
+          method: post
+
+  request:
+    handler: handler.graphqlRequest
+    events:
+      - http:
+          path: /request
+          method: post
+
