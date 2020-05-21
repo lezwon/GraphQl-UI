@@ -2,9 +2,12 @@ service: gql-forms
 
 frameworkVersion: ">=1.1.0 <2.0.0"
 
+include:
+   - node_modules/**
+   
 plugins:
   - serverless-offline
-
+  
 provider:
   name: aws
   runtime: nodejs12.x

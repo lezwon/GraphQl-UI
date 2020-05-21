@@ -10,8 +10,10 @@
   },
   "author": "Lezwon Castelino",
   "license": "ISC",
+  "dependencies": {
+    "graphql-request": "^1.8.2"
+  },
   "devDependencies": {
-    "graphql-request": "^1.8.2",
     "serverless-offline": "^6.1.5"
   }
 }

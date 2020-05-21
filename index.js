@@ -8,7 +8,7 @@ GraphQLClient.prototype.introspectionQuery =  async function () {
     if (typeof this.schema !== 'undefined') {
       return this.schema
     }
-    return fetch("/local/schema", {
+    return fetch(window.location.href + "/schema", {
       "method": "POST",
       "headers": {
         "content-type": "application/json"
@@ -69,16 +69,16 @@ GraphQLClient.prototype.resolveKind = function(element) {
   let element_name = element['name']
 
 
-  if (element_kind == "INPUT_OBJECT" || element_kind == "ENUM" || element_kind == "OBJECT"){
-    return this.resolveType(this.typesMapping[element_name])
-  }
-  else if (element_kind == "SCALAR"){
+  if (element_kind == "INPUT_OBJECT" || element_kind == "OBJECT" || element_kind == "SCALAR"){
     return {
       '__type': 'system',
       '__name': element_name,
       '__kind': element_kind,
-      '__id': Math.random().toString(36)
+      '__id': Math.random().toString(36).substring(2)
     }
+  }
+  else if(element_kind == "ENUM"){
+    return this.resolveType(element_name)
   }
   else if (element_kind == "NON_NULL"){
     let non_null_type = element['ofType']
@@ -116,7 +116,8 @@ GraphQLClient.prototype.resolveEnum = function (enumValues) {
 }
 
 
-GraphQLClient.prototype.resolveType = function (data) {
+GraphQLClient.prototype.resolveType = function (element_name) {
+  let data = this.typesMapping[element_name]
   if (data['kind'] == 'INPUT_OBJECT' || data['kind'] == 'OBJECT'){
     return this.resolveObject(data['inputFields'] || data['fields'])
   }
@@ -169,7 +170,7 @@ GraphQLClient.prototype.getOutputQuery = function(queryName){
 }
 
 GraphQLClient.prototype.execute = function(payload){
-  return fetch("/local/request", {
+  return fetch(window.location.href + "/request", {
     "method": "POST",
     "headers": {
       "content-type": "application/json"

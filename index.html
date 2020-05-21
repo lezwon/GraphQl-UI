@@ -5,6 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GraphQl Interface</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
     <script src="//cdn.jsdelivr.net/npm/graphql.js@0.6.6/graphql.min.js"></script>
     <script src="https://unpkg.com/prettier@2.0.5/standalone.js"></script>
     <script src="https://unpkg.com/prettier@2.0.5/parser-graphql.js"></script>
@@ -20,9 +23,11 @@
             <option value="Internal">Internal</option>
             <option value="API">API</option>
         </select>
-        <input id="token" type="text" name="token" id="" placeholder="Token" value="eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJ1c2VyX2lkIjoxNjU1LCJhY2NvdW50X2lkIjoxMTI1OSwicm9sZV9pZCI6MjA2ODcsIm5hbWUiOiJKYXkiLCJ1c2VyX3R5cGUiOiJTTUIiLCJqdGkiOiI2NmI0MDZmNC02NTQ4LTQwMzEtOTNmMS0xOTA0MmI5NTVmZDYiLCJyb2xlX3R5cGUiOiJhZG1pbiIsInJvbGVfbmFtZSI6IkFkbWluIn0.ZJ4DWcJU9j0GP1kMHFRDhCa1E5GearvfkoGz-vBoYlIAKoLaMXnImPGFzbTguVduDF_cDC6jcaglathJyvvAdpqBykYnS3ejjPKnkleJ2uYoKJc3vuF7AtMjVo83QpIKdIo6HFfrIrkJn0MrSdqjbnwSgD6HTdjKtqySfZZ-_JAnwaYJO4n0SVsmOWrZEyHg-Xg7c_pdQCT3GpXEczkU1JUL32bFJ2KIf83yMPyJvz4VaIdxqhW-vGdb8EJsrmbW5C_rOL5amdhKcAt549d0EiDBYsUgLxfHhkHDkKxtbxY08oDEc8vYE0fcUld_DWim3OAaqM_h4sHCDrdbbyheoA">
+        <input id="token" type="text" name="token" id="" placeholder="Token" value="eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJ1c2VyX2lkIjoxNTcsImFjY291bnRfaWQiOjEyOCwicm9sZV9pZCI6MTgzODIsIm5hbWUiOiJMZXp3b24iLCJ1c2VyX3R5cGUiOiJBZ2VuY3kiLCJqdGkiOiI0NDdiM2UxZS0wYWQwLTQyYjQtOTA2MS01YzJjMGQyYjhkM2QiLCJyb2xlX3R5cGUiOiJhZG1pbiIsInJvbGVfbmFtZSI6IkFkbWluIn0.q1nhYh5pWgn44-2FPRmQSeyv5Bq3qGoDJXQCTy0RgyBr77jCt4ZTicQJhFYAzuQHWzfZgT3rmL0Z8aoMg4Bz1RNKQD8BCbgQAhgIS8FxgCJON_hSE-PFPe14CGyS8_phaSe31g9nrATwwfVUotDS9YCuZiiE6KYw9bSqxTEC6gYq8zQgp7JtGJ4-sJPn3Z68S5vmwvHAFJuc45FfmLbubh18gVu0k5gxbblm8T4strYyxUhNRty5qYg8TN45w3oXLROBJn-NuvbEcNOrsyqzTSB5Me-mPg3PlIE5AZ4zS5OIDHs8tfh5Mq0yATJAQeJ0yObM9dCqN5Q1xwNSb6ffSw">
         <input id="submit_button" type="submit" value="Submit" name="submit_button">
     </form>
+
+
 </body>
 <script>
 
@@ -77,6 +82,22 @@
                 button.innerText = 'Submit'
                 subContainer.appendChild(button)
 
+
+                panelHeadings = document.getElementsByClassName('panel')
+                let addPanelBody = function(e){
+                    if (e.target.nodeName != "A"){
+                        e.preventDefault()
+                    }
+                    let typeName = e.target.innerText
+                    let payload = client.resolveType(typeName)
+                    let output = parseObject(payload)
+                    let htmlRender = renderItems(output)
+                    e.target.parentElement.parentElement.nextElementSibling.firstChild.appendChild(htmlRender)
+                }
+
+                for (let item of panelHeadings) {
+                    item.addEventListener('click', addPanelBody)
+                }
 
                 button.addEventListener('click', function(e){
                     let variables = parseInput(output)

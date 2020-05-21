@@ -19,11 +19,39 @@ function textboxGenerator(object) {
     return textbox
 }
 
+function accordionGenerator(object) {
+    let panel = document.createElement("div");
+    panel.className = "panel panel-default"
+    let panelHeading = document.createElement("div");
+    panelHeading.className = "panel-heading"
+    let panelTitle = document.createElement("h4");
+    panelTitle.className = "panel-title"
+    let linkTitle = document.createElement("a");
+    linkTitle.innerText = object['__name']
+    linkTitle.href = "#" + object['__id']
+    linkTitle.setAttribute("data-toggle","collapse")
+    let panelCollapse = document.createElement("div");
+    panelCollapse.className = "panel-collapse collapse"
+    panelCollapse.id = object['__id']
+    let panelBody = document.createElement("div");
+    panelBody.className = "panel-body"
+
+    panelTitle.appendChild(linkTitle)
+    panelHeading.appendChild(panelTitle)
+    panel.appendChild(panelHeading)
+    panel.appendChild(panelCollapse)
+    panelCollapse.appendChild(panelBody)
+    
+    return panel
+}
+
 function parseToHtml(object) {
     if (object['__kind'] == 'ENUM') {
         return selectGenerator(object)
     } else if (object['__kind'] == 'SCALAR') {
         return textboxGenerator(object)
+    } else if (object['__kind'] == 'INPUT_OBJECT' || object['__kind'] == 'OBJECT'){
+        return accordionGenerator(object)
     }
 }
 
@@ -48,11 +76,15 @@ function parseObject(payload) {
 
 function generateDiv(key, value, array = false){
     let sign = array ? '[]' : '->'
-    let div = document.createElement('div')
+    let tr = document.createElement('tr')
+    let td_1 = document.createElement('td')
+    let td_2 = document.createElement('td')
     let itemName = document.createTextNode(key + sign)
-    div.appendChild(itemName)
-    div.appendChild(value)
-    return div
+    td_1.appendChild(itemName)
+    td_2.appendChild(value)
+    tr.appendChild(td_1)
+    tr.appendChild(td_2)
+    return tr
 }
 
 function renderItems(payload) {
@@ -60,7 +92,7 @@ function renderItems(payload) {
     if(payload instanceof HTMLElement){
         return payload
     } else if (Array.isArray(payload)){
-        elements = payload.map((el) => { return generateDiv('Array', renderItems(el), true) })
+        return payload[0]
     } else if(payload instanceof Object){
         elements = Object.entries(payload).map(([key, value]) => {
             if (value instanceof Object){
@@ -68,10 +100,9 @@ function renderItems(payload) {
             }
         })
     }
-
-    let div = document.createElement('div')
-    elements.forEach((el) => { div.appendChild(el) })
-    return div
+    table = document.createElement('table')
+    elements.forEach((el) => { table.appendChild(el) })
+    return table
 }
 
 function parseInput(payload){
