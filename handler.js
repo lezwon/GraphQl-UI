@@ -39,7 +39,14 @@ module.exports.graphqlRequest = async (event, context, callback) => {
   let query = body['query']
   let token = body['token']
   let endpoint = body['endpoint']
-  let resp = await graphqlRequest(endpoint, token, query)
+  let resp = {}
+  try {
+    resp = await graphqlRequest(endpoint, token, query)
+  }
+  catch (e) {
+    resp = {status: 'ERROR', message: e.message}
+  }
+  
   let response = {
     statusCode: 200,
     headers: {
