@@ -69,7 +69,7 @@ GraphQLClient.prototype.resolveKind = function(element) {
   let element_name = element['name']
 
 
-  if (element_kind == "INPUT_OBJECT" || element_kind == "OBJECT" || element_kind == "SCALAR"){
+  if (element_kind == "INPUT_OBJECT" || element_kind == "SCALAR"){
     return {
       '__type': 'system',
       '__name': element_name,
@@ -77,7 +77,7 @@ GraphQLClient.prototype.resolveKind = function(element) {
       '__id': Math.random().toString(36).substring(2)
     }
   }
-  else if(element_kind == "ENUM"){
+  else if(element_kind == "ENUM" || element_kind == "OBJECT"){
     return this.resolveType(element_name)
   }
   else if (element_kind == "NON_NULL"){
@@ -111,7 +111,7 @@ GraphQLClient.prototype.resolveEnum = function (enumValues) {
     '__name': 'Enum',
     '__kind': 'ENUM',
     '__values': values,
-    '__id': Math.random().toString(36)
+    '__id': Math.random().toString(36).substring(2)
   }
 }
 

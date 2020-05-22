@@ -87,6 +87,7 @@
                 let addPanelBody = function(e){
                     if (e.target.nodeName != "A"){
                         e.preventDefault()
+                        return
                     }
                     let typeName = e.target.innerText
                     let payload = client.resolveType(typeName)
@@ -102,10 +103,12 @@
                 button.addEventListener('click', function(e){
                     let variables = parseInput(output)
                     let outputPayload = client.getOutputQuery(query)
+
+                    
                     if(Object.keys(variables).length != 0){
                         
                         let params = Object.entries(variables).map(([key, value])=>{
-                            return `${key}: ${JSON.stringify(value)}`
+                            return `${key}: ${JSON.stringify(value).replace(/"([^"]+)":/g, "$1:")}`
                         }).join(", ")
                         params = `(${params})`
 

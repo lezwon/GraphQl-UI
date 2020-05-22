@@ -107,7 +107,22 @@ function renderItems(payload) {
 
 function parseInput(payload){
     if(payload instanceof HTMLElement){
-        return payload.value
+        if (payload.tagName == "DIV"){
+            panelBody = payload.lastElementChild.firstElementChild
+            if (panelBody.children.length > 0){
+                let children = {}
+                for (tr of panelBody.firstChild.children){
+                    let [key, ..._] = tr.firstChild.innerText.split("->")
+                    children[key] = parseInput(tr.lastChild.firstChild)
+                }
+                return children
+            }else{
+                return null
+            }
+        }
+        else {
+            return payload.value
+        }
     } else if (Array.isArray(payload)){
         return payload.map((el) => { return parseInput(el) })
     } else if(payload instanceof Object){
