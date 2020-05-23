@@ -103,19 +103,26 @@
                 button.addEventListener('click', function(e){
                     let variables = parseInput(output)
                     let outputPayload = client.getOutputQuery(query)
-                    
+
+                    let preTags = document.getElementsByTagName("pre")
+                    if(preTags.length > 0){ 
+                        for (let i=preTags.length; i!= 0;) {
+                            preTags[--i].remove()
+                        }
+                    }
+
+                    let queryPreTag = document.createElement('pre')
+                    subContainer.appendChild(queryPreTag)
+                    queryPreTag.innerHTML = outputPayload.replace(/\n/g, "<br />")
+
+                    let variablesPreTag = document.createElement('pre')
+                    subContainer.appendChild(variablesPreTag)
+                    variablesPreTag.innerHTML = JSON.stringify(variables, undefined, 4).replace(/\n/g, "<br />")
 
                     body = {
                         'query': outputPayload,
                         'variables': variables
                     }
-
-                    let preTags = document.getElementsByTagName("pre")
-                    if(preTags.length > 0){ for (tag of preTags) {tag.remove()}}
-
-                    preTag = document.createElement('pre')
-                    subContainer.appendChild(preTag)
-                    preTag.innerHTML = JSON.stringify(body, undefined, 4).replace(/\n/g, "<br />")
 
                     client.execute(body).then(async (response) => {
                         response = await response.json();
