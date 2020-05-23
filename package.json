@@ -1,7 +1,7 @@
 {
-  "name": "gql-forms",
+  "name": "graphql-ui",
   "version": "1.0.0",
-  "description": "A front end interface to enter GQL arguements",
+  "description": "A form generator for GraphQL queries",
   "main": "gqlInterface.js",
   "scripts": {
     "start": "serverless offline -s dev",
