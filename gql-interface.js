@@ -8,13 +8,13 @@ module.exports.introspectionQuery =  function (endpoint) {
 };
 
 
-module.exports.graphqlRequest = function (endpoint, token, query){
+module.exports.graphqlRequest = function (endpoint, token, query, variables){
   const client = new GraphQLClient(endpoint, {
     headers: {
       Authorization: token
     }
   })
    
-  return client.request(query)
+  return client.request(query, variables)
 }
 

@@ -161,11 +161,63 @@ GraphQLClient.prototype.parseGql = function(payload){
   }
 }
 
+
+GraphQLClient.prototype.resolveInputType = function(element) {
+  let element_kind = element['kind']
+  let element_name = element['name']
+
+  if (element_kind == "NON_NULL"){
+    let non_null_type = element['ofType']
+    return this.resolveInputType(non_null_type) + '!'
+  }
+  else if (element_kind == "LIST"){
+    let list_type = element['ofType']
+    return `[${this.resolveInputType(list_type)}]`
+  }
+  else{
+    return element_name
+  }
+}
+
+GraphQLClient.prototype.getInputParams = function(queryName){
+  let result = {}
+  inputArray = this.queryMapping[queryName]['input']
+  inputArray.forEach((input) => {
+    result[input['name']] = this.resolveInputType(input['type'])
+  })
+  return result
+}
+
 GraphQLClient.prototype.getOutputQuery = function(queryName){
   let payload = this.resolveQueryOutput(queryName)
+  let inputParams = this.getInputParams(query)
   let queryType = this.queryMapping[queryName]['type']
+
   let output = `${queryType}{  ${queryName} ${this.parseGql(payload)} }`
   let prettyQuery = prettier.format(output, { parser: 'graphql', plugins: prettierPlugins });
+
+  if(Object.keys(inputParams).length != 0){
+                        
+    let params = Object.entries(inputParams).map(([key, value])=>{
+        return `$$${key}: ${value}`
+    }).join(", ")
+    params = `(${params})`
+
+
+    let idx = prettyQuery.indexOf('{')
+    prettyQuery = prettyQuery.slice(0, --idx) + params + prettyQuery.slice(idx)
+
+
+    params = Object.keys(inputParams).map((key)=>{
+      return `${key}: $$${key}`
+    }).join(", ")
+    params = `(${params})`
+    idx = prettyQuery.indexOf('{')
+    idx = prettyQuery.indexOf('{', idx + 1)
+    prettyQuery = prettyQuery.slice(0, --idx) + params + prettyQuery.slice(idx)
+  }
+
+
   return prettyQuery
 }
 
@@ -176,7 +228,8 @@ GraphQLClient.prototype.execute = function(payload){
       "content-type": "application/json"
     },
     "body": JSON.stringify({
-      "query": payload,
+      "query": payload['query'],
+      "variables": payload['variables'],
       "token": this.token,
       "endpoint": this.endpoint
     })

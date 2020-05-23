@@ -121,7 +121,22 @@ function parseInput(payload){
             }
         }
         else {
-            return payload.value
+            value = payload.value
+            switch(value){
+                case "true":
+                    return true
+                case "false":
+                    return false
+                default:
+                    
+            }
+
+            if (!isNaN(value)){
+                return parseInt(value)
+            }
+
+            return value
+
         }
     } else if (Array.isArray(payload)){
         return payload.map((el) => { return parseInput(el) })

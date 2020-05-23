@@ -23,7 +23,7 @@
             <option value="Internal">Internal</option>
             <option value="API">API</option>
         </select>
-        <input id="token" type="text" name="token" id="" placeholder="Token" value="eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJ1c2VyX2lkIjoxNTcsImFjY291bnRfaWQiOjEyOCwicm9sZV9pZCI6MTgzODIsIm5hbWUiOiJMZXp3b24iLCJ1c2VyX3R5cGUiOiJBZ2VuY3kiLCJqdGkiOiI0NDdiM2UxZS0wYWQwLTQyYjQtOTA2MS01YzJjMGQyYjhkM2QiLCJyb2xlX3R5cGUiOiJhZG1pbiIsInJvbGVfbmFtZSI6IkFkbWluIn0.q1nhYh5pWgn44-2FPRmQSeyv5Bq3qGoDJXQCTy0RgyBr77jCt4ZTicQJhFYAzuQHWzfZgT3rmL0Z8aoMg4Bz1RNKQD8BCbgQAhgIS8FxgCJON_hSE-PFPe14CGyS8_phaSe31g9nrATwwfVUotDS9YCuZiiE6KYw9bSqxTEC6gYq8zQgp7JtGJ4-sJPn3Z68S5vmwvHAFJuc45FfmLbubh18gVu0k5gxbblm8T4strYyxUhNRty5qYg8TN45w3oXLROBJn-NuvbEcNOrsyqzTSB5Me-mPg3PlIE5AZ4zS5OIDHs8tfh5Mq0yATJAQeJ0yObM9dCqN5Q1xwNSb6ffSw">
+        <input id="token" type="text" name="token" id="" placeholder="Token" value="eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJ1c2VyX2lkIjoxNTcsImFjY291bnRfaWQiOjEyOCwicm9sZV9pZCI6MTgzODIsIm5hbWUiOiJMZXp3b24iLCJ1c2VyX3R5cGUiOiJBZ2VuY3kiLCJqdGkiOiJhYmMxNDJmZS02YTdhLTQwZjQtYmE4ZC02YTFhMDE2Nzc0NWMiLCJyb2xlX3R5cGUiOiJhZG1pbiIsInJvbGVfbmFtZSI6IkFkbWluIn0.gospr_-MP9topw-yKIF7niauJcerUhoxxDIxF8SJhUI2J-Cr7YrTQHmECxOB9hQU4s7lXsfzS7iNAa84JbR2lDi33A7yzYpQK1D8GBJgJSs8twsy41t-YVSxqmlJxhOMEobRTZqPJI1lFcf6UHcQppwNtK3_2B_srf70bwFlFgoimQxny1GRMXgtfJLfyrBBU6iFJBAIgOl8KVqfX0qBjs1l3LK9-7pVc7ZsUUq62fkAj8cYkf9t4LZla_wRBhUTQmMy_uGSTT0neqhqISG177EXHk-HzWtXVCrZBGKvFwO3rbtZRbueJopzGUI5K10iPwSQvFR64hzXuJz3WH1lGQ">
         <input id="submit_button" type="submit" value="Submit" name="submit_button">
     </form>
 
@@ -103,20 +103,6 @@
                 button.addEventListener('click', function(e){
                     let variables = parseInput(output)
                     let outputPayload = client.getOutputQuery(query)
-
-                    
-                    if(Object.keys(variables).length != 0){
-                        
-                        let params = Object.entries(variables).map(([key, value])=>{
-                            return `${key}: ${JSON.stringify(value).replace(/"([^"]+)":/g, "$1:")}`
-                        }).join(", ")
-                        params = `(${params})`
-
-
-                        let idx = outputPayload.indexOf('{')
-                        idx = outputPayload.indexOf('{', idx + 1)
-                        outputPayload = outputPayload.slice(0, --idx) + params + outputPayload.slice(idx)
-                    }
                     
 
                     body = {
@@ -124,13 +110,18 @@
                         'variables': variables
                     }
 
+                    let preTags = document.getElementsByTagName("pre")
+                    if(preTags.length > 0){ for (tag of preTags) {tag.remove()}}
+
                     preTag = document.createElement('pre')
                     subContainer.appendChild(preTag)
                     preTag.innerHTML = JSON.stringify(body, undefined, 4).replace(/\n/g, "<br />")
 
-                    client.execute(outputPayload).then(async (response) => {
+                    client.execute(body).then(async (response) => {
                         response = await response.json();
-                        responseTag = document.createElement('pre')
+
+                        let responseTag = document.createElement('pre')
+                        responseTag.id = "response"
                         subContainer.appendChild(responseTag)
                         responseTag.innerHTML = JSON.stringify(response, undefined, 4)
                     }).catch(e=> console.log(e))
