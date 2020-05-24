@@ -12,11 +12,25 @@ function selectGenerator(object) {
     return selectNode
 }
 
+function checkboxGenerator(object) {
+    let input = document.createElement("input");
+    input.setAttribute('id', object['__id'])
+    input.setAttribute("type", "checkbox");
+    return input
+}
+
+function numberboxGenerator(object) {
+    let input = document.createElement("input");
+    input.setAttribute('id', object['__id'])
+    input.setAttribute("type", "number");
+    return input
+}
+
 function textboxGenerator(object) {
-    let textbox = document.createElement("input");
-    textbox.setAttribute('id', object['__id'])
-    textbox.setAttribute("type", "text");
-    return textbox
+    let input = document.createElement("input");
+    input.setAttribute('id', object['__id'])
+    input.setAttribute("type", "text");
+    return input
 }
 
 function accordionGenerator(object) {
@@ -49,7 +63,17 @@ function parseToHtml(object) {
     if (object['__kind'] == 'ENUM') {
         return selectGenerator(object)
     } else if (object['__kind'] == 'SCALAR') {
-        return textboxGenerator(object)
+        switch(object['__name']){
+            case 'Boolean':
+                return checkboxGenerator(object)
+                break;
+            case 'Int':
+                return numberboxGenerator(object)
+                break;
+            default:
+                return textboxGenerator(object)
+        }
+        
     } else if (object['__kind'] == 'INPUT_OBJECT' || object['__kind'] == 'OBJECT'){
         return accordionGenerator(object)
     }
@@ -122,21 +146,14 @@ function parseInput(payload){
         }
         else {
             value = payload.value
-            switch(value){
-                case "true":
-                    return true
-                case "false":
-                    return false
+            switch (payload.type){
+                case "checkbox":
+                    return payload.checked
+                case "number":
+                    return parseInt(value)
                 default:
-                    
+                    return value
             }
-
-            if (!isNaN(value)){
-                return parseInt(value)
-            }
-
-            return value
-
         }
     } else if (Array.isArray(payload)){
         return payload.map((el) => { return parseInput(el) })
